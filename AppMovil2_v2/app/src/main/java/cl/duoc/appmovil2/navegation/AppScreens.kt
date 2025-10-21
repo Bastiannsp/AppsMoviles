@@ -1,6 +1,8 @@
 package cl.duoc.appmovil2.navegation
 
 sealed class AppScreens(val route: String) {
+    data object Login : AppScreens("login")
+    data object Register : AppScreens("register")
     data object Home : AppScreens("home_page")
     data object Profile : AppScreens("profile_page")
     data object Settings : AppScreens("settings_page")
