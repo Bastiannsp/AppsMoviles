@@ -22,11 +22,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import cl.duoc.appmovil2.data.local.database.AppDatabase
+import cl.duoc.appmovil2.data.repository.UserRepository
 import cl.duoc.appmovil2.data.session.SessionPreferencesRepository
 import cl.duoc.appmovil2.data.session.sessionDataStore
 import cl.duoc.appmovil2.navegation.AppScreens
@@ -38,6 +41,8 @@ import cl.duoc.appmovil2.ui.theme.AppMovil2Theme
 import cl.duoc.appmovil2.viewmodel.LoginViewModel
 import cl.duoc.appmovil2.viewmodel.LoginViewModelFactory
 import cl.duoc.appmovil2.viewmodel.MainViewModel
+import cl.duoc.appmovil2.viewmodel.RegisterViewModel
+import cl.duoc.appmovil2.viewmodel.RegisterViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 
@@ -123,7 +128,23 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(AppScreens.Register.route) {
-                            RegisterScreen(onNavigateBack = { navController.popBackStack() })
+                            val context = LocalContext.current
+                            val userRepository = remember(context) {
+                                val database = AppDatabase.getInstance(context)
+                                UserRepository(database.userDao())
+                            }
+                            val registerViewModel: RegisterViewModel = viewModel(
+                                factory = remember(userRepository) {
+                                    RegisterViewModelFactory(userRepository)
+                                }
+                            )
+                            RegisterScreen(
+                                viewModel = registerViewModel,
+                                onNavigateBack = { navController.popBackStack() },
+                                onRegistrationCompleted = {
+                                    navController.popBackStack()
+                                }
+                            )
                         }
 
                         composable(AppScreens.Home.route) {
