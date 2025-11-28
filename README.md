@@ -36,7 +36,7 @@ Aplicación Android (Kotlin/Jetpack Compose) para la comunidad gamer GameZone. P
 ## Estructura del repositorio
 ```
 AppsMoviles/          → Proyecto Android (este repo)
-backend/              → Proyecto Spring Boot (carpeta adjunta)
+backend/              → Proyecto Spring Boot 
 ```
 
 ## Requisitos previos
@@ -48,7 +48,7 @@ backend/              → Proyecto Spring Boot (carpeta adjunta)
 ## Configuración del backend
 1. Copia la carpeta adjunta `backend/` junto al proyecto Android o clónala desde su repositorio dedicado.
 2. Abre una terminal en `backend/` y ejecuta:
-   - En Windows: `mvnw.cmd spring-boot:run`
+   - En Windows: `.\mvnw.cmd spring-boot:run`
    - En macOS/Linux: `./mvnw spring-boot:run`
 3. El backend expone la API REST en `http://localhost:8080`. Usa 10.0.2.2 para acceder desde un emulador Android.
 4. Configura la base de datos en `src/main/resources/application.properties`:
