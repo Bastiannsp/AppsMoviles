@@ -54,13 +54,13 @@ backend/              → Proyecto Spring Boot
 4. Configura la base de datos en `src/main/resources/application.properties`:
    - **MySQL local:**
      ```properties
-     spring.datasource.url=jdbc:mysql://localhost:3306/gamezone
+     spring.datasource.url=jdbc:mysql://localhost:3306/gamezone_bd
      spring.datasource.username=tu_usuario
      spring.datasource.password=tu_password
      spring.jpa.hibernate.ddl-auto=update
      spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
      ```
-     Crea la base `gamezone` en tu servidor MySQL (`CREATE DATABASE gamezone;`) y ajusta usuario/contraseña según tu entorno. 
+     Crea la base `gamezone_bd` en tu servidor MySQL (`CREATE DATABASE gamezone;`), luego (`USE gamezone_bd`) y ajusta usuario/contraseña según tu entorno. 
 5. Credenciales por defecto o datos seed pueden configurarse en `application.properties` (ver backend).
 
 > **Tip:** Si usas un dispositivo físico, reemplaza `localhost` por la IP de tu PC en la red y asegúrate de que ambos estén conectados a la misma red Wi‑Fi.
