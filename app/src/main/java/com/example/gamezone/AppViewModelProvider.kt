@@ -28,7 +28,10 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            HomeViewModel(gamezoneApplication().container.locationTracker)
+            HomeViewModel(
+                gamezoneApplication().container.locationTracker,
+                gamezoneApplication().container.gameDealsRepository
+            )
         }
     }
 }

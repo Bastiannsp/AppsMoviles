@@ -1,3 +1,12 @@
 package com.example.gamezone.ui.screens
 
-val GENRE_OPTIONS = listOf("FICCIÓN", "NO FICCIÓN", "MISTERIO", "TERROR", "SUSPENSO", "HISTORIA")
+val GENRE_OPTIONS = listOf(
+    "ACCION",
+    "AVENTURA",
+    "RPG",
+    "SHOOTER",
+    "ESTRATEGIA",
+    "DEPORTES",
+    "CARRERAS",
+    "INDIE"
+)

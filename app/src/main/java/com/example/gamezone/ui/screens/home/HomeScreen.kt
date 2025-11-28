@@ -9,12 +9,14 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -33,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -42,8 +46,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.gamezone.AppViewModelProvider
+import com.example.gamezone.model.GameDeal
 import com.example.gamezone.model.User
 import com.example.gamezone.ui.session.SessionViewModel
+import java.util.Locale
+import kotlin.math.roundToInt
 
 @Composable
 fun HomeScreen(
@@ -127,6 +134,15 @@ fun HomeScreen(
         NavigationShortcuts(
             onProfile = { navController.navigate("profile") },
             onLogout = sessionViewModel::logout
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        DealsSection(
+            deals = homeState.gameDeals,
+            isLoading = homeState.isFetchingDeals,
+            error = homeState.dealsError,
+            onRefresh = viewModel::refreshDeals
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -225,6 +241,109 @@ private fun LocationCard(
 }
 
 @Composable
+private fun DealsSection(
+    deals: List<GameDeal>,
+    isLoading: Boolean,
+    error: String?,
+    onRefresh: () -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Ofertas gamer", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(12.dp))
+            if (deals.isNotEmpty()) {
+                deals.forEachIndexed { index, deal ->
+                    DealItem(deal)
+                    if (index != deals.lastIndex) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            when {
+                isLoading && deals.isEmpty() -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(text = "Buscando ofertas...", style = MaterialTheme.typography.bodySmall)
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                error != null && deals.isEmpty() -> {
+                    Text(
+                        text = error,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                deals.isEmpty() -> {
+                    Text(text = "No hay ofertas disponibles por ahora.", style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+
+            if (isLoading && deals.isNotEmpty()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(text = "Actualizando ofertas...", style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            if (error != null && deals.isNotEmpty()) {
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            val buttonLabel = if (isLoading) "Actualizando" else "Actualizar ofertas"
+            OutlinedButton(onClick = onRefresh, enabled = !isLoading) {
+                Icon(imageVector = Icons.Outlined.Refresh, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = buttonLabel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DealItem(deal: GameDeal) {
+    Column {
+        Text(text = deal.title, style = MaterialTheme.typography.titleSmall)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Oferta: ${deal.salePrice.toPriceLabel()} USD",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = "Antes: ${deal.normalPrice.toPriceLabel()} USD (${deal.savingsPercentage.coerceAtLeast(0.0).roundToInt()}% menos)",
+            style = MaterialTheme.typography.bodySmall
+        )
+        deal.dealRating?.let { rating ->
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Valoración: ${rating.toRatingLabel()}/10",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
 private fun NavigationShortcuts(onProfile: () -> Unit, onLogout: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -245,6 +364,10 @@ private fun ShortcutButton(icon: ImageVector, label: String, onClick: () -> Unit
         Text(text = label)
     }
 }
+
+private fun Double.toPriceLabel(): String = String.format(Locale.getDefault(), "%.2f", this)
+
+private fun Double.toRatingLabel(): String = String.format(Locale.getDefault(), "%.1f", this)
 
 private fun buildFeedForUser(user: User): List<FeedItem> {
     val highlightGenre = user.favoriteGenres.firstOrNull()
