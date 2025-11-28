@@ -52,7 +52,6 @@ backend/              → Proyecto Spring Boot
    - En macOS/Linux: `./mvnw spring-boot:run`
 3. El backend expone la API REST en `http://localhost:8080`. Usa 10.0.2.2 para acceder desde un emulador Android.
 4. Configura la base de datos en `src/main/resources/application.properties`:
-   - **H2 (por defecto):** el backend puede ejecutarse sin configuración extra utilizando la base en memoria incluida.
    - **MySQL local:**
      ```properties
      spring.datasource.url=jdbc:mysql://localhost:3306/gamezone
